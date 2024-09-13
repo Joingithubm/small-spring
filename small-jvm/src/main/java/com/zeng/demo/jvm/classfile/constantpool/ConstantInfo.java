@@ -1,6 +1,7 @@
 package com.zeng.demo.jvm.classfile.constantpool;
 
 import com.zeng.demo.jvm.classfile.ClassReader;
+import com.zeng.demo.jvm.classfile.constantpool.impl.*;
 import org.omg.CORBA.INTERNAL;
 
 /**
@@ -30,12 +31,46 @@ public interface ConstantInfo {
     int tag();
 
     static ConstantInfo readConstantInfo(ClassReader reader, ConstantPool constantPool){
-
-        return null;
+        int tag = reader.readUint8();
+        ConstantInfo constantInfo = newConstantInfo(tag, constantPool);
+        constantInfo.readInfo(reader);
+        return constantInfo;
     }
 
     static ConstantInfo newConstantInfo(int tag, ConstantPool constantPool){
-        return null;
+        switch (tag){
+            case CONSTANT_TAG_INTEGER:
+                return new ConstantIntegerInfo();
+            case CONSTANT_TAG_FLOAT:
+                return new ConstantFloatInfo();
+            case CONSTANT_TAG_LONG:
+                return new ConstantLongInfo();
+            case CONSTANT_TAG_DOUBLE:
+                return new ConstantDoubleInfo();
+            case CONSTANT_TAG_UTF8:
+                return new ConstantUtf8Info();
+            case CONSTANT_TAG_STRING:
+                return new ConstantStringInfo(constantPool);
+            case CONSTANT_TAG_CLASS:
+                return new ConstantClassInfo(constantPool);
+            case CONSTANT_TAG_FIELDREF:
+                return new ConstantFieldRefInfo(constantPool);
+            case CONSTANT_TAG_METHODREF:
+                return new ConstantMethodRefInfo(constantPool);
+            case CONSTANT_TAG_INTERFACEMETHODREF:
+                return new ConstantInterfaceMethodRefInfo(constantPool);
+            case CONSTANT_TAG_NAMEANDTYPE:
+                return new ConstantNameAndTypeInfo();
+            case CONSTANT_TAG_METHODTYPE:
+                return new ConstantMethodTypeInfo();
+            case CONSTANT_TAG_METHODHANDLE:
+                return new ConstantMethodHandleInfo();
+            case CONSTANT_TAG_INVOKEDYNAMIC:
+                return new ConstantInvokeDynamicInfo();
+            default:
+                throw new ClassFormatError("constant pool tag");
+
+        }
     }
 
 }

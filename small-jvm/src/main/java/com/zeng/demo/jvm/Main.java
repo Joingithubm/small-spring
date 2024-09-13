@@ -1,9 +1,12 @@
 package com.zeng.demo.jvm;
 
 
+import com.zeng.demo.jvm.classfile.ClassFile;
+import com.zeng.demo.jvm.classfile.MemberInfo;
 import com.zeng.demo.jvm.classpath.Classpath;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * @Author: fanchao
@@ -30,16 +33,38 @@ public class Main {
         System.out.printf("classpath:%s class:%s args:%s\n", classpath, cmd.getMainClass(), cmd.getAppArgs());
         //获取className
         String className = cmd.getMainClass().replace(".", "/");
+        ClassFile classFile = loadClass(className, classpath);
+        assert classFile != null;
+        printClassInfo(classFile);
+    }
+
+    private static ClassFile loadClass(String className, Classpath classpath){
         try {
             byte[] classData = classpath.readClass(className);
-            System.out.println("classData:");
-            for (byte b : classData) {
-                // 十六进制输出
-                System.out.println(String.format("%02x", b & 0xff) + " ");
-            }
+            return new ClassFile(classData);
         } catch (IOException e) {
-            System.out.println("Could not find or load main class" + cmd.getMainClass());
-            e.printStackTrace();
+            System.out.println("Could not find or load main class" + className);
+            return null;
         }
+    }
+
+    private static void printClassInfo(ClassFile cf) {
+
+        System.out.println("version: " + cf.majorVersion() + "." + cf.minorVersion());
+        System.out.println("constants count: " + cf.constantPool().size());
+        System.out.format("access flags: 0x%x\n", cf.accessFlags());
+        System.out.println("this class: " + cf.className());
+        System.out.println("super class: " + cf.superClassName());
+        System.out.println("interfaces: " + Arrays.toString(cf.interfaceNames()));
+        System.out.println("fields count: " + cf.fields().length);
+        for (MemberInfo field : cf.fields()) {
+            System.out.printf("%s \t\t %s \n", field.name(), field.descriptor());
+        }
+
+        System.out.printf("methods count: " + cf.methods().length);
+        for (MemberInfo method : cf.methods()) {
+            System.out.printf("%s \t\t %s\n", method.name(), method.descriptor());
+        }
+
     }
 }
