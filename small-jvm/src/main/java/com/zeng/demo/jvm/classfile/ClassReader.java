@@ -48,7 +48,7 @@ public class ClassReader {
         return new BigInteger(1, val).floatValue();
     }
 
-    public long readUnit64TLong(){
+    public long readUint64TLong(){
         byte[] val = readByte(8);
         return new BigInteger(1, val).longValue();
     }
