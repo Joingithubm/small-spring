@@ -53,7 +53,7 @@ public class ClassReader {
         return new BigInteger(1, val).longValue();
     }
 
-    public double readUint64Double(){
+    public double readUint64TDouble(){
         byte[] val = readByte(8);
         return new BigInteger(1, val).doubleValue();
     }
